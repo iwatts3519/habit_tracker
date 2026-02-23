@@ -2,8 +2,18 @@ import { randomUUID } from "crypto";
 import { getDb } from "@/lib/db";
 import type { Habit } from "@/types";
 
-export function getAllHabits(): Habit[] {
+export function getAllHabits(userId?: string): Habit[] {
   const db = getDb();
+  if (userId) {
+    return db
+      .prepare(
+        `SELECT h.* FROM habits h
+         JOIN goals g ON h.goal_id = g.id
+         WHERE g.user_id = ?
+         ORDER BY h.sort_order ASC, h.created_at DESC`
+      )
+      .all(userId) as Habit[];
+  }
   return db
     .prepare("SELECT * FROM habits ORDER BY sort_order ASC, created_at DESC")
     .all() as Habit[];

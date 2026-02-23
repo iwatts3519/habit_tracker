@@ -1,11 +1,22 @@
+CREATE TABLE IF NOT EXISTS users (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT NOT NULL DEFAULT '',
+  password_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS goals (
   id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL DEFAULT 'default',
   title TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
   target_date TEXT,
   sort_order INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS habits (
@@ -24,9 +35,11 @@ CREATE TABLE IF NOT EXISTS habits (
 
 CREATE TABLE IF NOT EXISTS conversations (
   id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL DEFAULT 'default',
   title TEXT NOT NULL DEFAULT 'New Conversation',
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS messages (
@@ -47,6 +60,8 @@ CREATE TABLE IF NOT EXISTS habit_completions (
   UNIQUE(habit_id, completed_date)
 );
 
+CREATE INDEX IF NOT EXISTS idx_goals_user_id ON goals(user_id);
+CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id);
 CREATE INDEX IF NOT EXISTS idx_habits_goal_id ON habits(goal_id);
 CREATE INDEX IF NOT EXISTS idx_habit_completions_habit_id ON habit_completions(habit_id);
 CREATE INDEX IF NOT EXISTS idx_habit_completions_date ON habit_completions(completed_date);

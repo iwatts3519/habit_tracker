@@ -51,7 +51,7 @@ export default [
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
         "error",
-        { argsIgnorePattern: "^_" },
+        { argsIgnorePattern: "^_", destructuredArrayIgnorePattern: "^_", ignoreRestSiblings: true },
       ],
       "@typescript-eslint/no-explicit-any": "error",
     },

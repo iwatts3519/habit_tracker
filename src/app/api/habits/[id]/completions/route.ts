@@ -1,17 +1,30 @@
 import { NextRequest } from "next/server";
 import { getHabitById } from "@/lib/queries/habits";
+import { getGoalById } from "@/lib/queries/goals";
 import {
   getCompletionsByHabitId,
   toggleCompletion,
   calculateStreak,
 } from "@/lib/queries/completions";
 import { jsonResponse, errorResponse } from "@/lib/apiResponse";
+import { getAuthUserId } from "@/lib/authHelpers";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
+async function verifyHabitOwnership(habitId: string, userId: string) {
+  const habit = getHabitById(habitId);
+  if (!habit) return null;
+  const goal = getGoalById(habit.goal_id, userId);
+  if (!goal) return null;
+  return habit;
+}
+
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const result = await getAuthUserId();
+  if ("error" in result) return result.error;
+
   const { id } = await params;
-  const habit = getHabitById(id);
+  const habit = await verifyHabitOwnership(id, result.userId);
   if (!habit) return errorResponse("Habit not found", 404);
 
   const days = request.nextUrl.searchParams.get("days");
@@ -25,8 +38,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
+  const result = await getAuthUserId();
+  if ("error" in result) return result.error;
+
   const { id } = await params;
-  const habit = getHabitById(id);
+  const habit = await verifyHabitOwnership(id, result.userId);
   if (!habit) return errorResponse("Habit not found", 404);
 
   const body = await request.json();
@@ -37,9 +53,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   }
 
   try {
-    const result = toggleCompletion(id, date);
+    const toggleResult = toggleCompletion(id, date);
     const streak = calculateStreak(id);
-    return jsonResponse({ ...result, streak });
+    return jsonResponse({ ...toggleResult, streak });
   } catch (err) {
     return errorResponse(
       err instanceof Error ? err.message : "Failed to toggle completion",

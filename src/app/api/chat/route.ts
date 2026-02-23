@@ -6,9 +6,15 @@ import { getConversationById } from "@/lib/queries/conversations";
 import { getMessagesByConversationId, createMessage } from "@/lib/queries/messages";
 import { getAllGoals } from "@/lib/queries/goals";
 import { getAllHabits } from "@/lib/queries/habits";
+import { getAuthUserId } from "@/lib/authHelpers";
 
 export async function POST(request: NextRequest) {
   try {
+    const result = await getAuthUserId();
+    if ("error" in result) {
+      return Response.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { conversation_id } = body as { conversation_id: string };
 
@@ -19,7 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const conversation = getConversationById(conversation_id);
+    const conversation = getConversationById(conversation_id, result.userId);
     if (!conversation) {
       return Response.json(
         { error: "Conversation not found" },
@@ -41,8 +47,8 @@ export async function POST(request: NextRequest) {
 
     const claudeMessages = buildContextMessages(dbMessages);
 
-    const goals = getAllGoals();
-    const habits = getAllHabits();
+    const goals = getAllGoals(result.userId);
+    const habits = getAllHabits(result.userId);
     const systemPrompt = buildSystemPrompt(goals, habits);
 
     const client = getClaudeClient();

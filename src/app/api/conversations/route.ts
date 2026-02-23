@@ -5,13 +5,20 @@ import {
 } from "@/lib/queries/conversations";
 import { createConversationSchema } from "@/types";
 import { jsonResponse, errorResponse, parseBody } from "@/lib/apiResponse";
+import { getAuthUserId } from "@/lib/authHelpers";
 
 export async function GET() {
-  const conversations = getAllConversations();
+  const result = await getAuthUserId();
+  if ("error" in result) return result.error;
+
+  const conversations = getAllConversations(result.userId);
   return jsonResponse(conversations);
 }
 
 export async function POST(request: NextRequest) {
+  const result = await getAuthUserId();
+  if ("error" in result) return result.error;
+
   const body = await request.json();
   const parsed = parseBody(createConversationSchema, body);
 
@@ -19,6 +26,6 @@ export async function POST(request: NextRequest) {
     return errorResponse(parsed.error, 400);
   }
 
-  const conversation = createConversation(parsed.data);
+  const conversation = createConversation(parsed.data, result.userId);
   return jsonResponse(conversation, 201);
 }

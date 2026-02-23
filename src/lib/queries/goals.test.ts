@@ -20,6 +20,9 @@ function setupDb() {
     "utf-8"
   );
   db.exec(schema);
+  db.prepare(
+    "INSERT INTO users (id, email, name, password_hash) VALUES ('default', 'test@test.com', 'Test', 'hash')"
+  ).run();
 }
 
 describe("goals queries", () => {

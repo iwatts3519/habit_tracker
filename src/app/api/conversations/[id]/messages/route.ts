@@ -7,12 +7,16 @@ import {
 } from "@/lib/queries/messages";
 import { createMessageSchema } from "@/types";
 import { jsonResponse, errorResponse, parseBody } from "@/lib/apiResponse";
+import { getAuthUserId } from "@/lib/authHelpers";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
 export async function GET(request: NextRequest, { params }: RouteParams) {
+  const result = await getAuthUserId();
+  if ("error" in result) return result.error;
+
   const { id } = await params;
-  const conversation = getConversationById(id);
+  const conversation = getConversationById(id, result.userId);
 
   if (!conversation) {
     return errorResponse("Conversation not found", 404);
@@ -33,8 +37,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
+  const result = await getAuthUserId();
+  if ("error" in result) return result.error;
+
   const { id } = await params;
-  const conversation = getConversationById(id);
+  const conversation = getConversationById(id, result.userId);
 
   if (!conversation) {
     return errorResponse("Conversation not found", 404);
