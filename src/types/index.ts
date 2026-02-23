@@ -60,6 +60,23 @@ export interface Habit {
   updated_at: string;
 }
 
+// --- Habit Completions ---
+
+export interface HabitCompletion {
+  id: string;
+  habit_id: string;
+  completed_date: string;
+  created_at: string;
+}
+
+export interface HabitStreak {
+  current: number;
+  longest: number;
+  totalCompletions: number;
+  last7Days: number;
+  last30Days: number;
+}
+
 // --- Conversations ---
 
 export const createConversationSchema = z.object({

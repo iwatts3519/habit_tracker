@@ -4,6 +4,7 @@ import { useState } from "react";
 import { GoalForm } from "./GoalForm";
 import { HabitCard } from "@/components/habits/HabitCard";
 import { HabitForm } from "@/components/habits/HabitForm";
+import { GoalProgress } from "@/components/progress/GoalProgress";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useGoalsStore } from "@/stores/goalsStore";
 import type { Goal, Habit } from "@/types";
@@ -83,6 +84,11 @@ export function GoalCard({ goal, habits }: GoalCardProps) {
               <p className="mt-1 text-xs text-gray-400">
                 Target: {new Date(goal.target_date).toLocaleDateString()}
               </p>
+            )}
+            {habits.length > 0 && (
+              <div className="mt-1.5">
+                <GoalProgress goalId={goal.id} habits={habits} />
+              </div>
             )}
           </div>
 

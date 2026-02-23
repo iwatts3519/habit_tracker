@@ -1,7 +1,7 @@
 # Phase 8: Habit Tracking & Progress
 
-**Status**: 📋 Planned
-**Completion**: 0%
+**Status**: ✅ Done
+**Completion**: 100%
 
 ## Goal
 Add daily habit check-ins, streak tracking, and progress visualisation so users can track their consistency and see their progress over time.
@@ -36,9 +36,9 @@ Add daily habit check-ins, streak tracking, and progress visualisation so users 
 - `src/stores/goalsStore.ts` - Updated with completion state
 
 ## Success Criteria
-- [ ] Users can mark habits as complete for today
-- [ ] Streaks calculated correctly (including broken streaks)
-- [ ] Calendar heatmap displays past completions
-- [ ] Statistics update in real-time on check-in
-- [ ] Completion data persists in SQLite
-- [ ] Goal progress reflects contributing habit performance
+- [x] Users can mark habits as complete for today
+- [x] Streaks calculated correctly (including broken streaks)
+- [x] Calendar heatmap displays past completions
+- [x] Statistics update in real-time on check-in
+- [x] Completion data persists in SQLite
+- [x] Goal progress reflects contributing habit performance

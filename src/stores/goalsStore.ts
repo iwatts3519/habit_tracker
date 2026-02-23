@@ -1,16 +1,20 @@
 "use client";
 
 import { create } from "zustand";
-import type { Goal, Habit } from "@/types";
+import type { Goal, Habit, HabitCompletion, HabitStreak } from "@/types";
 
 interface GoalsState {
   goals: Goal[];
   habits: Habit[];
+  completions: Record<string, HabitCompletion[]>;
+  streaks: Record<string, HabitStreak>;
   isLoading: boolean;
   error: string | null;
 
   fetchGoals: () => Promise<void>;
   fetchHabits: () => Promise<void>;
+  fetchCompletions: (habitId: string) => Promise<void>;
+  toggleCompletion: (habitId: string, date: string) => Promise<void>;
 
   addGoal: (data: {
     title: string;
@@ -64,6 +68,8 @@ async function apiFetch<T>(
 export const useGoalsStore = create<GoalsState>((set, get) => ({
   goals: [],
   habits: [],
+  completions: {},
+  streaks: {},
   isLoading: false,
   error: null,
 
@@ -180,6 +186,63 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
       set({
         habits: prev,
         error: err instanceof Error ? err.message : "Failed to delete habit",
+      });
+    }
+  },
+
+  fetchCompletions: async (habitId) => {
+    try {
+      const data = await apiFetch<{
+        completions: HabitCompletion[];
+        streak: HabitStreak;
+      }>(`/api/habits/${habitId}/completions?days=90`);
+      set((state) => ({
+        completions: { ...state.completions, [habitId]: data.completions },
+        streaks: { ...state.streaks, [habitId]: data.streak },
+      }));
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error ? err.message : "Failed to fetch completions",
+      });
+    }
+  },
+
+  toggleCompletion: async (habitId, date) => {
+    try {
+      const data = await apiFetch<{
+        completed: boolean;
+        streak: HabitStreak;
+      }>(`/api/habits/${habitId}/completions`, {
+        method: "POST",
+        body: JSON.stringify({ date }),
+      });
+
+      set((state) => {
+        const prev = state.completions[habitId] ?? [];
+        const newCompletions = data.completed
+          ? [
+              ...prev,
+              {
+                id: `temp-${Date.now()}`,
+                habit_id: habitId,
+                completed_date: date,
+                created_at: new Date().toISOString(),
+              },
+            ]
+          : prev.filter((c) => c.completed_date !== date);
+
+        return {
+          completions: { ...state.completions, [habitId]: newCompletions },
+          streaks: { ...state.streaks, [habitId]: data.streak },
+        };
+      });
+    } catch (err) {
+      set({
+        error:
+          err instanceof Error
+            ? err.message
+            : "Failed to toggle completion",
       });
     }
   },
