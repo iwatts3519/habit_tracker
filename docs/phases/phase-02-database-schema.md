@@ -1,7 +1,7 @@
 # Phase 2: Database Schema & API
 
-**Status**: 📋 Planned
-**Completion**: 0%
+**Status**: ✅ Done
+**Completion**: 100%
 
 ## Goal
 Design and implement the SQLite database schema for goals, habits, chat conversations, and messages. Build Next.js API routes with Zod-validated request/response handling.
@@ -42,9 +42,9 @@ Design and implement the SQLite database schema for goals, habits, chat conversa
 - `src/app/api/conversations/[id]/messages/route.ts` - Messages endpoint
 
 ## Success Criteria
-- [ ] Database tables are created automatically on first run
-- [ ] All API routes return proper JSON responses
-- [ ] Zod validation rejects invalid input with 400 errors
-- [ ] Foreign key constraints enforced (habits belong to goals)
-- [ ] All queries are parameterised (no SQL injection)
-- [ ] API routes have co-located tests
+- [x] Database tables are created automatically on first run
+- [x] All API routes return proper JSON responses
+- [x] Zod validation rejects invalid input with 400 errors
+- [x] Foreign key constraints enforced (habits belong to goals)
+- [x] All queries are parameterised (no SQL injection)
+- [x] API routes have co-located tests (24 tests passing)
