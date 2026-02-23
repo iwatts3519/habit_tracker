@@ -1,7 +1,7 @@
 # Phase 5: Chat Interface
 
-**Status**: 📋 Planned
-**Completion**: 0%
+**Status**: ✅ Done
+**Completion**: 100%
 
 ## Goal
 Build the left-hand chat UI with message bubbles, a text input area, typing indicators, and conversation management. This phase focuses on the UI only -- the AI integration comes in Phase 6.
@@ -39,10 +39,10 @@ Build the left-hand chat UI with message bubbles, a text input area, typing indi
 - `src/hooks/useChat.ts` - Hook for chat operations
 
 ## Success Criteria
-- [ ] Messages display with proper user/assistant styling
-- [ ] Auto-scrolls to latest message
-- [ ] Send on Enter, new line on Shift+Enter
-- [ ] Typing indicator shows while awaiting response
-- [ ] Users can switch between conversations
-- [ ] Empty conversation shows a welcome/prompt message
-- [ ] Markdown renders correctly in assistant messages
+- [x] Messages display with proper user/assistant styling
+- [x] Auto-scrolls to latest message
+- [x] Send on Enter, new line on Shift+Enter
+- [x] Typing indicator shows while awaiting response
+- [x] Users can switch between conversations
+- [x] Empty conversation shows a welcome/prompt message
+- [x] Markdown renders correctly in assistant messages
