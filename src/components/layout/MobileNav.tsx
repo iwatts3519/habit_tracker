@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 
 interface MobileNavProps {
   left: React.ReactNode;
@@ -9,12 +9,37 @@ interface MobileNavProps {
 
 export function MobileNav({ left, right }: MobileNavProps) {
   const [activeTab, setActiveTab] = useState<"chat" | "goals">("chat");
+  const touchStart = useRef<number | null>(null);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStart.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (touchStart.current === null) return;
+      const delta = e.changedTouches[0].clientX - touchStart.current;
+      const threshold = 80;
+
+      if (delta > threshold && activeTab === "goals") {
+        setActiveTab("chat");
+      } else if (delta < -threshold && activeTab === "chat") {
+        setActiveTab("goals");
+      }
+      touchStart.current = null;
+    },
+    [activeTab]
+  );
 
   return (
-    <div className="flex h-screen flex-col">
+    <div
+      className="flex h-screen flex-col"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="flex-1 overflow-hidden">
         <div
-          className={activeTab === "chat" ? "h-full" : "hidden"}
+          className={activeTab === "chat" ? "h-full animate-fade-in" : "hidden"}
           role="tabpanel"
           aria-labelledby="tab-chat"
           id="panel-chat"
@@ -22,7 +47,7 @@ export function MobileNav({ left, right }: MobileNavProps) {
           {left}
         </div>
         <div
-          className={activeTab === "goals" ? "h-full" : "hidden"}
+          className={activeTab === "goals" ? "h-full animate-fade-in" : "hidden"}
           role="tabpanel"
           aria-labelledby="tab-goals"
           id="panel-goals"
@@ -34,7 +59,7 @@ export function MobileNav({ left, right }: MobileNavProps) {
       <nav
         role="tablist"
         aria-label="Main navigation"
-        className="flex border-t border-gray-200 bg-white"
+        className="flex border-t border-gray-200 bg-white safe-area-bottom"
       >
         <button
           id="tab-chat"
@@ -43,6 +68,7 @@ export function MobileNav({ left, right }: MobileNavProps) {
           aria-controls="panel-chat"
           onClick={() => setActiveTab("chat")}
           className={`flex flex-1 flex-col items-center gap-1 py-3 text-sm font-medium transition-colors
+            min-h-[48px]
             ${activeTab === "chat" ? "text-indigo-600" : "text-gray-500 hover:text-gray-700"}`}
         >
           <ChatIcon active={activeTab === "chat"} />
@@ -55,6 +81,7 @@ export function MobileNav({ left, right }: MobileNavProps) {
           aria-controls="panel-goals"
           onClick={() => setActiveTab("goals")}
           className={`flex flex-1 flex-col items-center gap-1 py-3 text-sm font-medium transition-colors
+            min-h-[48px]
             ${activeTab === "goals" ? "text-indigo-600" : "text-gray-500 hover:text-gray-700"}`}
         >
           <GoalsIcon active={activeTab === "goals"} />

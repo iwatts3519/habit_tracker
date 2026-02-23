@@ -41,6 +41,7 @@ export default [
         document: "readonly",
         window: "readonly",
         localStorage: "readonly",
+        requestAnimationFrame: "readonly",
       },
     },
     plugins: {

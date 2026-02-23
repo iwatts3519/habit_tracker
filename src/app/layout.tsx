@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Habit Tracker",
   description:
     "Research and build better habits with AI-powered guidance and goal tracking",
+  viewport: "width=device-width, initial-scale=1, viewport-fit=cover",
 };
 
 export default function RootLayout({

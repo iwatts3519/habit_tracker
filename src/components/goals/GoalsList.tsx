@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { useGoalsStore } from "@/stores/goalsStore";
 import { GoalCard } from "./GoalCard";
+import { GoalCardSkeleton } from "@/components/ui/Skeleton";
 
 export function GoalsList() {
   const { goals, habits, isLoading, error, fetchGoals, fetchHabits, clearError } =
@@ -15,11 +16,10 @@ export function GoalsList() {
 
   if (isLoading && goals.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center p-6">
-        <div className="text-center">
-          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-indigo-600" />
-          <p className="mt-3 text-sm text-gray-500">Loading goals...</p>
-        </div>
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <GoalCardSkeleton />
+        <GoalCardSkeleton />
+        <GoalCardSkeleton />
       </div>
     );
   }

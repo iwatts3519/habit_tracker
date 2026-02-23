@@ -1,17 +1,20 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import type { RefObject } from "react";
 
 const MAX_LENGTH = 4000;
 
 interface ChatInputProps {
   onSend: (content: string) => void;
   disabled: boolean;
+  textareaRef?: RefObject<HTMLTextAreaElement | null>;
 }
 
-export function ChatInput({ onSend, disabled }: ChatInputProps) {
+export function ChatInput({ onSend, disabled, textareaRef: externalRef }: ChatInputProps) {
   const [value, setValue] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const internalRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = externalRef ?? internalRef;
 
   useEffect(() => {
     if (!disabled) textareaRef.current?.focus();
