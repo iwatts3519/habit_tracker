@@ -1,8 +1,11 @@
 import { NextRequest } from "next/server";
 import { getClaudeClient, CLAUDE_MODEL, MAX_TOKENS } from "@/lib/claude";
-import { SYSTEM_PROMPT } from "@/lib/systemPrompt";
+import { buildSystemPrompt } from "@/lib/systemPrompt";
+import { buildContextMessages } from "@/lib/contextManager";
 import { getConversationById } from "@/lib/queries/conversations";
 import { getMessagesByConversationId, createMessage } from "@/lib/queries/messages";
+import { getAllGoals } from "@/lib/queries/goals";
+import { getAllHabits } from "@/lib/queries/habits";
 
 export async function POST(request: NextRequest) {
   try {
@@ -25,24 +28,29 @@ export async function POST(request: NextRequest) {
     }
 
     const dbMessages = getMessagesByConversationId(conversation_id);
-    const claudeMessages = dbMessages.map((m) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content,
-    }));
 
-    if (claudeMessages.length === 0 || claudeMessages[claudeMessages.length - 1].role !== "user") {
+    if (
+      dbMessages.length === 0 ||
+      dbMessages[dbMessages.length - 1].role !== "user"
+    ) {
       return Response.json(
         { error: "Conversation must end with a user message" },
         { status: 400 }
       );
     }
 
+    const claudeMessages = buildContextMessages(dbMessages);
+
+    const goals = getAllGoals();
+    const habits = getAllHabits();
+    const systemPrompt = buildSystemPrompt(goals, habits);
+
     const client = getClaudeClient();
 
     const stream = await client.messages.stream({
       model: CLAUDE_MODEL,
       max_tokens: MAX_TOKENS,
-      system: SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: claudeMessages,
     });
 
@@ -98,7 +106,8 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal server error";
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
     const status = message.includes("ANTHROPIC_API_KEY") ? 500 : 400;
     return Response.json({ error: message }, { status });
   }

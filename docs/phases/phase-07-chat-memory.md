@@ -1,7 +1,7 @@
 # Phase 7: Chat Memory & Context
 
-**Status**: 📋 Planned
-**Completion**: 0%
+**Status**: ✅ Done
+**Completion**: 100%
 
 ## Goal
 Persist chat history to the SQLite database and implement context management so Claude can reference previous conversations and the user's goals/habits for personalised advice.
@@ -30,9 +30,9 @@ Persist chat history to the SQLite database and implement context management so 
 - `src/app/api/chat/route.ts` - Updated to persist messages and build context
 
 ## Success Criteria
-- [ ] Chat history persists across page reloads
-- [ ] Conversations load from database correctly
-- [ ] Context window stays within Claude's token limits
-- [ ] Claude can reference the user's goals and habits
-- [ ] Old conversations can be continued with context intact
-- [ ] No duplicate messages on reload or reconnection
+- [x] Chat history persists across page reloads
+- [x] Conversations load from database correctly
+- [x] Context window stays within Claude's token limits
+- [x] Claude can reference the user's goals and habits
+- [x] Old conversations can be continued with context intact
+- [x] No duplicate messages on reload or reconnection
