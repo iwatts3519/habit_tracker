@@ -1,7 +1,7 @@
 # Phase 1: Project Setup
 
-**Status**: 📋 Planned
-**Completion**: 0%
+**Status**: ✅ Done
+**Completion**: 100%
 
 ## Goal
 Scaffold the Next.js 14+ application with all required tooling: TypeScript (strict), Tailwind CSS, ESLint, Vitest, and SQLite (via better-sqlite3). Establish the project structure and dev scripts from Agents.md.
@@ -36,9 +36,9 @@ Scaffold the Next.js 14+ application with all required tooling: TypeScript (stri
 - `src/lib/db.ts` - SQLite database initialisation
 
 ## Success Criteria
-- [ ] `npm run dev` starts the app at localhost:3000
-- [ ] `npm run typecheck` passes with zero errors
-- [ ] `npm run lint` passes with zero errors
-- [ ] `npm run test` runs (even if no tests yet)
-- [ ] Folder structure matches Agents.md specification
-- [ ] SQLite database file is created on first run
+- [x] `npm run dev` starts the app at localhost:3000
+- [x] `npm run typecheck` passes with zero errors
+- [x] `npm run lint` passes with zero errors
+- [x] `npm run test` runs (even if no tests yet)
+- [x] Folder structure matches Agents.md specification
+- [ ] SQLite database file is created on first run (db module ready, triggered in Phase 2)

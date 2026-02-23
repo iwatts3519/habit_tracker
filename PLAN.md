@@ -4,7 +4,7 @@
 
 | Phase | Name | Status | Completion |
 |-------|------|--------|------------|
-| 1 | Project Setup | 📋 Planned | 0% |
+| 1 | Project Setup | ✅ Done | 100% |
 | 2 | Database Schema & API | 📋 Planned | 0% |
 | 3 | Split-Pane Layout | 📋 Planned | 0% |
 | 4 | Goals & Habits Panel | 📋 Planned | 0% |
