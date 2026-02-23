@@ -1,7 +1,7 @@
 # Phase 4: Goals & Habits Panel
 
-**Status**: 📋 Planned
-**Completion**: 0%
+**Status**: ✅ Done
+**Completion**: 100%
 
 ## Goal
 Implement the right-hand panel with full CRUD for long-term goals and the habits that contribute to each goal. Users can create goals, add habits under them, reorder items, and edit/delete as needed.
@@ -39,9 +39,9 @@ Implement the right-hand panel with full CRUD for long-term goals and the habits
 - `src/hooks/useHabits.ts` - Hook for habit operations
 
 ## Success Criteria
-- [ ] Users can create, read, update, and delete goals
-- [ ] Users can create, read, update, and delete habits under goals
-- [ ] Habits visually nest under their parent goal
-- [ ] Optimistic UI updates with error rollback
-- [ ] Form validation via Zod schemas
-- [ ] Empty states with helpful prompts
+- [x] Users can create, read, update, and delete goals
+- [x] Users can create, read, update, and delete habits under goals
+- [x] Habits visually nest under their parent goal
+- [x] Optimistic UI updates with error rollback
+- [x] Form validation via Zod schemas
+- [x] Empty states with helpful prompts

@@ -1,44 +1,44 @@
 "use client";
 
+import { useState } from "react";
+import { GoalsList } from "./GoalsList";
+import { GoalForm } from "./GoalForm";
+import { useGoalsStore } from "@/stores/goalsStore";
+
 export function GoalsPanel() {
+  const [showNewGoal, setShowNewGoal] = useState(false);
+  const { addGoal } = useGoalsStore();
+
+  const handleCreate = async (data: {
+    title: string;
+    description?: string;
+    target_date?: string | null;
+  }) => {
+    await addGoal(data);
+    setShowNewGoal(false);
+  };
+
   return (
     <div className="flex h-full flex-col bg-gray-50">
       <header className="flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3">
         <h2 className="text-lg font-semibold text-gray-900">Goals & Habits</h2>
         <button
-          disabled
-          className="rounded-lg bg-indigo-400 px-3 py-1.5 text-sm font-medium text-white"
+          onClick={() => setShowNewGoal(true)}
+          disabled={showNewGoal}
+          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white
+                     hover:bg-indigo-700 disabled:opacity-50"
         >
           + New Goal
         </button>
       </header>
 
-      <div className="flex flex-1 items-center justify-center p-6">
-        <div className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-6 w-6 text-emerald-600"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"
-              />
-            </svg>
-          </div>
-          <h3 className="text-base font-medium text-gray-900">
-            No goals yet
-          </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Create your first long-term goal and add habits to achieve it.
-          </p>
+      {showNewGoal && (
+        <div className="border-b border-gray-200 bg-white">
+          <GoalForm onSubmit={handleCreate} onCancel={() => setShowNewGoal(false)} />
         </div>
-      </div>
+      )}
+
+      <GoalsList />
     </div>
   );
 }
