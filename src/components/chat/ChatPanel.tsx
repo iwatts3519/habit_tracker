@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useChatStore } from "@/stores/chatStore";
+import { useChat } from "@/hooks/useChat";
 import { ConversationList } from "./ConversationList";
 import { MessageList } from "./MessageList";
 import { ChatInput } from "./ChatInput";
@@ -18,22 +19,14 @@ export function ChatPanel() {
     createConversation,
     deleteConversation,
     renameConversation,
-    sendMessage,
     clearError,
   } = useChatStore();
+
+  const { sendAndStream } = useChat();
 
   useEffect(() => {
     fetchConversations();
   }, [fetchConversations]);
-
-  const handleSend = async (content: string) => {
-    let convId = activeConversationId;
-    if (!convId) {
-      const conv = await createConversation();
-      convId = conv.id;
-    }
-    await sendMessage(content);
-  };
 
   return (
     <div className="flex h-full flex-col bg-white">
@@ -66,7 +59,7 @@ export function ChatPanel() {
 
       <MessageList messages={messages} isTyping={isSending} />
 
-      <ChatInput onSend={handleSend} disabled={isSending} />
+      <ChatInput onSend={sendAndStream} disabled={isSending} />
     </div>
   );
 }
