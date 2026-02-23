@@ -6,7 +6,7 @@
 |-------|------|--------|------------|
 | 1 | Project Setup | ✅ Done | 100% |
 | 2 | Database Schema & API | ✅ Done | 100% |
-| 3 | Split-Pane Layout | 📋 Planned | 0% |
+| 3 | Split-Pane Layout | ✅ Done | 100% |
 | 4 | Goals & Habits Panel | 📋 Planned | 0% |
 | 5 | Chat Interface | 📋 Planned | 0% |
 | 6 | Claude AI Integration | 📋 Planned | 0% |

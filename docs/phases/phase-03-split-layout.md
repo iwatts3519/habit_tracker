@@ -1,7 +1,7 @@
 # Phase 3: Split-Pane Layout
 
-**Status**: 📋 Planned
-**Completion**: 0%
+**Status**: ✅ Done
+**Completion**: 100%
 
 ## Goal
 Build the core application layout: a horizontally split view with a resizable divider. The left pane hosts the chat interface; the right pane hosts the goals and habits panel. On mobile, the panes stack vertically with tab-based navigation.
@@ -32,8 +32,8 @@ Build the core application layout: a horizontally split view with a resizable di
 - `src/app/page.tsx` - Updated to use split layout
 
 ## Success Criteria
-- [ ] Desktop shows side-by-side panes with draggable divider
-- [ ] Divider position persists across page reloads
-- [ ] Mobile shows single pane with tab switching
-- [ ] Layout transitions smoothly between breakpoints
-- [ ] Pane min/max widths prevent unusable states
+- [x] Desktop shows side-by-side panes with draggable divider
+- [x] Divider position persists across page reloads
+- [x] Mobile shows single pane with tab switching
+- [x] Layout transitions smoothly between breakpoints
+- [x] Pane min/max widths prevent unusable states (25%–75%)
