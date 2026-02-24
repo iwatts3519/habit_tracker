@@ -77,9 +77,17 @@ export function ConversationList({
                       autoFocus
                     />
                   ) : (
-                    <button
+                    <div
+                      role="button"
+                      tabIndex={0}
                       onClick={() => onSelect(conv.id)}
-                      className={`group flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          onSelect(conv.id);
+                        }
+                      }}
+                      className={`group flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-left text-sm
                         transition-colors ${
                           activeId === conv.id
                             ? "bg-indigo-100 text-indigo-700 font-medium"
@@ -110,7 +118,7 @@ export function ConversationList({
                           </svg>
                         </button>
                       </span>
-                    </button>
+                    </div>
                   )}
                 </li>
               ))}

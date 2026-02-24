@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { createHabitSchema } from "@/types";
+import { createHabitSchema, ALL_DAYS, DAY_LABELS, parseFrequencyDays } from "@/types";
 import { useGoalsStore } from "@/stores/goalsStore";
-import type { Habit } from "@/types";
+import type { Habit, DayOfWeek } from "@/types";
 
 interface HabitFormProps {
   goalId: string;
@@ -16,6 +16,9 @@ export function HabitForm({ goalId, habit, onCancel, onSuccess }: HabitFormProps
   const [name, setName] = useState(habit?.name ?? "");
   const [description, setDescription] = useState(habit?.description ?? "");
   const [frequency, setFrequency] = useState(habit?.frequency ?? "daily");
+  const [frequencyDays, setFrequencyDays] = useState<DayOfWeek[]>(
+    habit ? parseFrequencyDays(habit) : []
+  );
   const [cue, setCue] = useState(habit?.cue ?? "");
   const [reward, setReward] = useState(habit?.reward ?? "");
   const [error, setError] = useState("");
@@ -24,15 +27,24 @@ export function HabitForm({ goalId, habit, onCancel, onSuccess }: HabitFormProps
   const { addHabit, updateHabit } = useGoalsStore();
   const isEditing = !!habit;
 
+  const toggleDay = (day: DayOfWeek) => {
+    setFrequencyDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const days = frequency === "specific_days" ? frequencyDays : [];
 
     const data = {
       goal_id: goalId,
       name: name.trim(),
       description: description.trim(),
       frequency,
+      frequency_days: days,
       cue: cue.trim(),
       reward: reward.trim(),
     };
@@ -46,6 +58,9 @@ export function HabitForm({ goalId, habit, onCancel, onSuccess }: HabitFormProps
     } else if (!data.name) {
       setError("Name is required");
       return;
+    } else if (frequency === "specific_days" && days.length === 0) {
+      setError("Select at least one day");
+      return;
     }
 
     setIsSubmitting(true);
@@ -55,6 +70,7 @@ export function HabitForm({ goalId, habit, onCancel, onSuccess }: HabitFormProps
           name: data.name,
           description: data.description,
           frequency: data.frequency,
+          frequency_days: data.frequency_days,
           cue: data.cue,
           reward: data.reward,
         });
@@ -104,23 +120,58 @@ export function HabitForm({ goalId, habit, onCancel, onSuccess }: HabitFormProps
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div>
+        <label htmlFor="habit-freq" className="block text-xs font-medium text-gray-600">
+          Frequency
+        </label>
+        <select
+          id="habit-freq"
+          value={frequency}
+          onChange={(e) => setFrequency(e.target.value)}
+          className="mt-1 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm
+                     focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+        >
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly (once per week)</option>
+          <option value="specific_days">Specific days of the week</option>
+          <option value="custom">Custom</option>
+        </select>
+      </div>
+
+      {frequency === "specific_days" && (
         <div>
-          <label htmlFor="habit-freq" className="block text-xs font-medium text-gray-600">
-            Frequency
-          </label>
-          <select
-            id="habit-freq"
-            value={frequency}
-            onChange={(e) => setFrequency(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm
-                       focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
-          >
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="custom">Custom</option>
-          </select>
+          <span className="block text-xs font-medium text-gray-600 mb-1.5">
+            Select days <span className="text-red-500">*</span>
+          </span>
+          <div className="flex gap-1">
+            {ALL_DAYS.map((day) => {
+              const selected = frequencyDays.includes(day);
+              return (
+                <button
+                  key={day}
+                  type="button"
+                  onClick={() => toggleDay(day)}
+                  className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors
+                    ${
+                      selected
+                        ? "bg-indigo-600 text-white shadow-sm"
+                        : "bg-white border border-gray-300 text-gray-600 hover:border-indigo-400 hover:text-indigo-600"
+                    }`}
+                >
+                  {DAY_LABELS[day]}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-1 text-xs text-gray-400">
+            {frequencyDays.length === 0
+              ? "No days selected"
+              : `${frequencyDays.length} day${frequencyDays.length !== 1 ? "s" : ""} per week`}
+          </p>
         </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-2">
         <div>
           <label htmlFor="habit-cue" className="block text-xs font-medium text-gray-600">
             Cue

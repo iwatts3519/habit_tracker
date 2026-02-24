@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { getDb } from "@/lib/db";
-import type { HabitCompletion, HabitStreak } from "@/types";
+import { dateToDayOfWeek } from "@/types";
+import type { HabitCompletion, HabitStreak, Habit, DayOfWeek } from "@/types";
 
 export function getCompletionsByHabitId(
   habitId: string,
@@ -61,8 +62,40 @@ export function toggleCompletion(
   return { completed: true };
 }
 
+function isScheduledDay(
+  dateStr: string,
+  frequency: string,
+  scheduledDays: DayOfWeek[]
+): boolean {
+  if (frequency !== "specific_days" || scheduledDays.length === 0) return true;
+  return scheduledDays.includes(dateToDayOfWeek(dateStr));
+}
+
+function getHabitFrequencyInfo(habitId: string): {
+  frequency: string;
+  scheduledDays: DayOfWeek[];
+} {
+  const db = getDb();
+  const habit = db
+    .prepare("SELECT frequency, frequency_days FROM habits WHERE id = ?")
+    .get(habitId) as Pick<Habit, "frequency" | "frequency_days"> | undefined;
+
+  if (!habit) return { frequency: "daily", scheduledDays: [] };
+
+  let scheduledDays: DayOfWeek[] = [];
+  if (habit.frequency_days) {
+    try {
+      scheduledDays = JSON.parse(habit.frequency_days) as DayOfWeek[];
+    } catch {
+      scheduledDays = [];
+    }
+  }
+  return { frequency: habit.frequency, scheduledDays };
+}
+
 export function calculateStreak(habitId: string): HabitStreak {
   const db = getDb();
+  const { frequency, scheduledDays } = getHabitFrequencyInfo(habitId);
 
   const completions = db
     .prepare(
@@ -80,20 +113,40 @@ export function calculateStreak(habitId: string): HabitStreak {
   let longest = 0;
   let streak = 0;
 
-  // Calculate current streak (working backwards from today)
   let checkDate = today;
-  while (dateSet.has(checkDate)) {
-    current++;
+  // Skip today if it's not a scheduled day and not completed
+  if (!isScheduledDay(checkDate, frequency, scheduledDays) && !dateSet.has(checkDate)) {
     checkDate = dateOffset(checkDate, -1);
   }
 
-  // Calculate longest streak
+  // Walk backwards, only counting scheduled days
+  let safety = 400;
+  while (safety-- > 0) {
+    if (isScheduledDay(checkDate, frequency, scheduledDays)) {
+      if (dateSet.has(checkDate)) {
+        current++;
+      } else {
+        break;
+      }
+    }
+    checkDate = dateOffset(checkDate, -1);
+  }
+
+  // Longest streak: walk forward through all sorted dates, skipping non-scheduled gaps
   if (completions.length > 0) {
     const sorted = [...dateSet].sort();
     streak = 1;
     longest = 1;
     for (let i = 1; i < sorted.length; i++) {
-      if (dateOffset(sorted[i - 1], 1) === sorted[i]) {
+      let nextExpected = dateOffset(sorted[i - 1], 1);
+      // Skip unscheduled days between two completions
+      while (
+        nextExpected < sorted[i] &&
+        !isScheduledDay(nextExpected, frequency, scheduledDays)
+      ) {
+        nextExpected = dateOffset(nextExpected, 1);
+      }
+      if (nextExpected === sorted[i]) {
         streak++;
         longest = Math.max(longest, streak);
       } else {

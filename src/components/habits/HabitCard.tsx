@@ -7,13 +7,22 @@ import { StreakBadge } from "./StreakBadge";
 import { CalendarHeatmap } from "@/components/progress/CalendarHeatmap";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { useGoalsStore } from "@/stores/goalsStore";
+import { parseFrequencyDays, DAY_LABELS } from "@/types";
 import type { Habit } from "@/types";
 
-const FREQUENCY_LABELS: Record<string, string> = {
-  daily: "Daily",
-  weekly: "Weekly",
-  custom: "Custom",
-};
+function getFrequencyLabel(habit: Habit): string {
+  if (habit.frequency === "specific_days") {
+    const days = parseFrequencyDays(habit);
+    if (days.length === 0) return "Specific days";
+    return days.map((d) => DAY_LABELS[d]).join(", ");
+  }
+  const labels: Record<string, string> = {
+    daily: "Daily",
+    weekly: "Weekly",
+    custom: "Custom",
+  };
+  return labels[habit.frequency] ?? habit.frequency;
+}
 
 interface HabitCardProps {
   habit: Habit;
@@ -63,7 +72,7 @@ export function HabitCard({ habit }: HabitCardProps) {
                 {habit.name}
               </span>
               <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
-                {FREQUENCY_LABELS[habit.frequency] ?? habit.frequency}
+                {getFrequencyLabel(habit)}
               </span>
               <StreakBadge streak={streak} />
             </div>

@@ -27,25 +27,82 @@ export interface Goal {
 
 // --- Habits ---
 
-export const habitFrequencySchema = z.enum(["daily", "weekly", "custom"]);
+export const habitFrequencySchema = z.enum([
+  "daily",
+  "weekly",
+  "specific_days",
+  "custom",
+]);
 
-export const createHabitSchema = z.object({
-  goal_id: z.string().min(1, "Goal ID is required"),
-  name: z.string().min(1, "Name is required").max(200),
-  description: z.string().max(2000).optional().default(""),
-  frequency: habitFrequencySchema.optional().default("daily"),
-  cue: z.string().max(500).optional().default(""),
-  reward: z.string().max(500).optional().default(""),
-});
+export type HabitFrequency = z.infer<typeof habitFrequencySchema>;
 
-export const updateHabitSchema = z.object({
-  name: z.string().min(1).max(200).optional(),
-  description: z.string().max(2000).optional(),
-  frequency: habitFrequencySchema.optional(),
-  cue: z.string().max(500).optional(),
-  reward: z.string().max(500).optional(),
-  sort_order: z.number().int().optional(),
-});
+export const dayOfWeekSchema = z.enum([
+  "mon",
+  "tue",
+  "wed",
+  "thu",
+  "fri",
+  "sat",
+  "sun",
+]);
+
+export type DayOfWeek = z.infer<typeof dayOfWeekSchema>;
+
+export const ALL_DAYS: DayOfWeek[] = [
+  "mon",
+  "tue",
+  "wed",
+  "thu",
+  "fri",
+  "sat",
+  "sun",
+];
+
+export const DAY_LABELS: Record<DayOfWeek, string> = {
+  mon: "Mon",
+  tue: "Tue",
+  wed: "Wed",
+  thu: "Thu",
+  fri: "Fri",
+  sat: "Sat",
+  sun: "Sun",
+};
+
+const frequencyDaysSchema = z.array(dayOfWeekSchema).max(7);
+
+export const createHabitSchema = z
+  .object({
+    goal_id: z.string().min(1, "Goal ID is required"),
+    name: z.string().min(1, "Name is required").max(200),
+    description: z.string().max(2000).optional().default(""),
+    frequency: habitFrequencySchema.optional().default("daily"),
+    frequency_days: frequencyDaysSchema.optional().default([]),
+    cue: z.string().max(500).optional().default(""),
+    reward: z.string().max(500).optional().default(""),
+  })
+  .refine(
+    (data) =>
+      data.frequency !== "specific_days" || data.frequency_days.length > 0,
+    { message: "Select at least one day", path: ["frequency_days"] }
+  );
+
+export const updateHabitSchema = z
+  .object({
+    name: z.string().min(1).max(200).optional(),
+    description: z.string().max(2000).optional(),
+    frequency: habitFrequencySchema.optional(),
+    frequency_days: frequencyDaysSchema.optional(),
+    cue: z.string().max(500).optional(),
+    reward: z.string().max(500).optional(),
+    sort_order: z.number().int().optional(),
+  })
+  .refine(
+    (data) =>
+      data.frequency !== "specific_days" ||
+      !data.frequency_days ||
+      data.frequency_days.length > 0,
+    { message: "Select at least one day", path: ["frequency_days"] }
+  );
 
 export interface Habit {
   id: string;
@@ -53,11 +110,28 @@ export interface Habit {
   name: string;
   description: string;
   frequency: string;
+  frequency_days: string;
   cue: string;
   reward: string;
   sort_order: number;
   created_at: string;
   updated_at: string;
+}
+
+export function parseFrequencyDays(habit: Habit): DayOfWeek[] {
+  if (!habit.frequency_days) return [];
+  try {
+    return JSON.parse(habit.frequency_days) as DayOfWeek[];
+  } catch {
+    return [];
+  }
+}
+
+export function dateToDayOfWeek(dateStr: string): DayOfWeek {
+  const d = new Date(dateStr + "T00:00:00Z");
+  const jsDay = d.getUTCDay();
+  const map: DayOfWeek[] = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  return map[jsDay];
 }
 
 // --- Habit Completions ---

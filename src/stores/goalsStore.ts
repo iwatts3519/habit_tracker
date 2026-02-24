@@ -32,6 +32,7 @@ interface GoalsState {
     name: string;
     description?: string;
     frequency?: string;
+    frequency_days?: string[];
     cue?: string;
     reward?: string;
   }) => Promise<Habit>;
@@ -41,6 +42,7 @@ interface GoalsState {
       name?: string;
       description?: string;
       frequency?: string;
+      frequency_days?: string[];
       cue?: string;
       reward?: string;
     }
@@ -156,8 +158,17 @@ export const useGoalsStore = create<GoalsState>((set, get) => ({
 
   updateHabit: async (id, data) => {
     const prev = get().habits;
+    const { frequency_days, ...rest } = data;
+    const optimistic: Partial<Habit> = {
+      ...rest,
+      ...(frequency_days !== undefined
+        ? { frequency_days: JSON.stringify(frequency_days) }
+        : {}),
+    };
     set((state) => ({
-      habits: state.habits.map((h) => (h.id === id ? { ...h, ...data } : h)),
+      habits: state.habits.map((h) =>
+        h.id === id ? { ...h, ...optimistic } : h
+      ),
     }));
     try {
       const updated = await apiFetch<Habit>(`/api/habits/${id}`, {

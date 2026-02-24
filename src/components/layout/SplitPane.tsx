@@ -66,7 +66,7 @@ export function SplitPane({ left, right }: SplitPaneProps) {
   const pct = isHydrated ? leftPct : DEFAULT_PCT;
 
   return (
-    <div ref={containerRef} className="flex h-screen w-full overflow-hidden">
+    <div ref={containerRef} className="flex h-full w-full overflow-hidden">
       <div
         className="h-full overflow-hidden"
         style={{ width: `${pct}%` }}

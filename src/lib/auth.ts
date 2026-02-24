@@ -1,8 +1,10 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { getUserByEmail, verifyPassword, toSafeUser } from "@/lib/queries/users";
+import { authConfig } from "./auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       name: "credentials",
@@ -31,33 +33,4 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
-  callbacks: {
-    authorized({ auth: session, request }) {
-      const isLoggedIn = !!session?.user;
-      const isLoginPage = request.nextUrl.pathname === "/login";
-      const isAuthApi = request.nextUrl.pathname.startsWith("/api/auth");
-      const isHealthApi = request.nextUrl.pathname === "/api/health";
-
-      if (isAuthApi || isHealthApi) return true;
-      if (isLoginPage) return true;
-      if (!isLoggedIn) return false;
-      return true;
-    },
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
-    session({ session, token }) {
-      if (session.user && token.id) {
-        session.user.id = token.id as string;
-      }
-      return session;
-    },
-  },
 });

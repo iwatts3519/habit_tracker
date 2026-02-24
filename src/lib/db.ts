@@ -30,23 +30,39 @@ function hasColumn(
 
 function runMigrations(database: Database.Database): void {
   const schema = fs.readFileSync(SCHEMA_PATH, "utf-8");
-  database.exec(schema);
 
-  // Add user_id to existing goals table if missing
+  const tableStatements: string[] = [];
+  const indexStatements: string[] = [];
+
+  for (const stmt of schema.split(";")) {
+    const trimmed = stmt.trim();
+    if (!trimmed) continue;
+    if (trimmed.toUpperCase().startsWith("CREATE INDEX")) {
+      indexStatements.push(trimmed + ";");
+    } else {
+      tableStatements.push(trimmed + ";");
+    }
+  }
+
+  database.exec(tableStatements.join("\n"));
+
   if (!hasColumn(database, "goals", "user_id")) {
     database.exec(
       "ALTER TABLE goals ADD COLUMN user_id TEXT NOT NULL DEFAULT 'default'"
     );
-    database.exec("CREATE INDEX IF NOT EXISTS idx_goals_user_id ON goals(user_id)");
   }
 
-  // Add user_id to existing conversations table if missing
   if (!hasColumn(database, "conversations", "user_id")) {
     database.exec(
       "ALTER TABLE conversations ADD COLUMN user_id TEXT NOT NULL DEFAULT 'default'"
     );
+  }
+
+  if (!hasColumn(database, "habits", "frequency_days")) {
     database.exec(
-      "CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON conversations(user_id)"
+      "ALTER TABLE habits ADD COLUMN frequency_days TEXT NOT NULL DEFAULT '[]'"
     );
   }
+
+  database.exec(indexStatements.join("\n"));
 }

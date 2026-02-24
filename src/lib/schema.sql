@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS habits (
   name TEXT NOT NULL,
   description TEXT NOT NULL DEFAULT '',
   frequency TEXT NOT NULL DEFAULT 'daily',
+  frequency_days TEXT NOT NULL DEFAULT '[]',
   cue TEXT NOT NULL DEFAULT '',
   reward TEXT NOT NULL DEFAULT '',
   sort_order INTEGER NOT NULL DEFAULT 0,

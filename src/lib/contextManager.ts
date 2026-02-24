@@ -1,5 +1,6 @@
 import type { Message } from "@/types";
 import type { Goal, Habit } from "@/types";
+import { parseFrequencyDays, DAY_LABELS } from "@/types";
 
 interface ClaudeMessage {
   role: "user" | "assistant";
@@ -145,7 +146,12 @@ export function buildGoalHabitContext(
     if (goalHabits.length > 0) {
       lines.push("Habits:");
       for (const habit of goalHabits) {
-        let habitLine = `- **${habit.name}** (${habit.frequency})`;
+        let freqLabel = habit.frequency;
+        if (habit.frequency === "specific_days") {
+          const days = parseFrequencyDays(habit);
+          freqLabel = days.map((d) => DAY_LABELS[d]).join(", ");
+        }
+        let habitLine = `- **${habit.name}** (${freqLabel})`;
         if (habit.cue) habitLine += ` | Cue: ${habit.cue}`;
         if (habit.reward) habitLine += ` | Reward: ${habit.reward}`;
         lines.push(habitLine);

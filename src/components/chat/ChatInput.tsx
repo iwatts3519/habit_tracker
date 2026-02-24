@@ -47,7 +47,7 @@ export function ChatInput({ onSend, disabled, textareaRef: externalRef }: ChatIn
   const remaining = MAX_LENGTH - value.length;
 
   return (
-    <div className="border-t border-gray-200 bg-white p-4">
+    <div className="shrink-0 border-t border-gray-200 bg-white p-4">
       <div className="flex items-end gap-2">
         <div className="relative flex-1">
           <textarea

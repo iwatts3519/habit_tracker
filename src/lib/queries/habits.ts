@@ -40,22 +40,25 @@ export function createHabit(data: {
   name: string;
   description?: string;
   frequency?: string;
+  frequency_days?: string[];
   cue?: string;
   reward?: string;
 }): Habit {
   const db = getDb();
   const id = randomUUID();
   const now = new Date().toISOString();
+  const frequencyDays = JSON.stringify(data.frequency_days ?? []);
 
   db.prepare(
-    `INSERT INTO habits (id, goal_id, name, description, frequency, cue, reward, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO habits (id, goal_id, name, description, frequency, frequency_days, cue, reward, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).run(
     id,
     data.goal_id,
     data.name,
     data.description ?? "",
     data.frequency ?? "daily",
+    frequencyDays,
     data.cue ?? "",
     data.reward ?? "",
     now,
@@ -71,6 +74,7 @@ export function updateHabit(
     name?: string;
     description?: string;
     frequency?: string;
+    frequency_days?: string[];
     cue?: string;
     reward?: string;
     sort_order?: number;
@@ -80,10 +84,16 @@ export function updateHabit(
   const existing = getHabitById(id);
   if (!existing) return undefined;
 
+  const frequencyDays =
+    data.frequency_days !== undefined
+      ? JSON.stringify(data.frequency_days)
+      : existing.frequency_days;
+
   const updated = {
     name: data.name ?? existing.name,
     description: data.description ?? existing.description,
     frequency: data.frequency ?? existing.frequency,
+    frequency_days: frequencyDays,
     cue: data.cue ?? existing.cue,
     reward: data.reward ?? existing.reward,
     sort_order: data.sort_order ?? existing.sort_order,
@@ -91,12 +101,13 @@ export function updateHabit(
   };
 
   db.prepare(
-    `UPDATE habits SET name = ?, description = ?, frequency = ?, cue = ?, reward = ?, sort_order = ?, updated_at = ?
+    `UPDATE habits SET name = ?, description = ?, frequency = ?, frequency_days = ?, cue = ?, reward = ?, sort_order = ?, updated_at = ?
      WHERE id = ?`
   ).run(
     updated.name,
     updated.description,
     updated.frequency,
+    updated.frequency_days,
     updated.cue,
     updated.reward,
     updated.sort_order,

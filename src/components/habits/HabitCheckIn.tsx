@@ -1,6 +1,7 @@
 "use client";
 
 import { useGoalsStore } from "@/stores/goalsStore";
+import { parseFrequencyDays, dateToDayOfWeek } from "@/types";
 
 interface HabitCheckInProps {
   habitId: string;
@@ -8,11 +9,17 @@ interface HabitCheckInProps {
 }
 
 export function HabitCheckIn({ habitId, date }: HabitCheckInProps) {
-  const { completions, toggleCompletion } = useGoalsStore();
+  const { completions, toggleCompletion, habits } = useGoalsStore();
   const habitCompletions = completions[habitId] ?? [];
   const isCompleted = habitCompletions.some(
     (c) => c.completed_date === date
   );
+
+  const habit = habits.find((h) => h.id === habitId);
+  const isScheduled =
+    !habit ||
+    habit.frequency !== "specific_days" ||
+    parseFrequencyDays(habit).includes(dateToDayOfWeek(date));
 
   const handleToggle = async () => {
     await toggleCompletion(habitId, date);
@@ -22,8 +29,15 @@ export function HabitCheckIn({ habitId, date }: HabitCheckInProps) {
     <button
       onClick={handleToggle}
       aria-label={isCompleted ? "Mark as incomplete" : "Mark as complete"}
+      title={!isScheduled ? "Not scheduled for today" : undefined}
       className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-md border-2 transition-all
-        ${isCompleted ? "border-emerald-500 bg-emerald-500 text-white animate-check-pop" : "border-gray-300 bg-white hover:border-emerald-400"}`}
+        ${
+          isCompleted
+            ? "border-emerald-500 bg-emerald-500 text-white animate-check-pop"
+            : !isScheduled
+              ? "border-gray-200 bg-gray-50 hover:border-emerald-300"
+              : "border-gray-300 bg-white hover:border-emerald-400"
+        }`}
     >
       {isCompleted && (
         <svg
